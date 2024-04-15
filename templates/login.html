@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex align-items-center py-4 bg-body-tertiary">
+
+<div class="form-signin w-50 m-auto">
+  <form action="{{url_for('login') }}" method="POST">
+    <!-- <img class="mb-4" src="/docs/5.3/assets/brand/bootstrap-logo.svg" alt="" width="72" height="57"> -->
+    <h2 class="display-4 lh-1 text-body-emphasis cormorant-garamond-medium-italic py-4">Please sign in</h2>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      {% for message in messages %}
+      <p class="flash text-danger">{{ message }}</p>
+      {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    {{ form.csrf_token }}
+    <div class="form-group mb-3">
+      {{ form.email.label }}
+      {{ form.email(class_="form-control") }}
+    </div>
+    <div class="form-group mb-3">
+      {{ form.password.label }}
+      {{ form.password(class_="form-control") }}
+    </div>
+<!--
+    <div class="form-check text-start my-3">
+      <input class="form-check-input" type="checkbox" value="remember-me" id="flexCheckDefault">
+      <label class="form-check-label" for="flexCheckDefault">
+        Remember me
+      </label>
+    </div> -->
+    <div class="form-group mb-3">
+    {{ form.submit(class_="form-control btn btn-dark") }}
+    </div>
+  </form>
+  <p class="my-3 fw-normal">If you don't have an account with us yet, please
+    <a href="{{ url_for('register') }}">register</a>.</p>
+</div>
+
+</div>
+{% endblock %}

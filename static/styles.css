@@ -1,0 +1,26 @@
+.dark-green-bg {
+    background-color: #183D3D}
+
+.dark-green-text {
+    color: #183D3D}
+
+.light-grn-txt {
+    color: #93B1A6}
+
+nav ul a:hover {
+    color: white !important;}
+
+footer ul a:hover {
+    color: white !important;}
+
+.cormorant-garamond-medium-italic {
+  font-family: "Cormorant Garamond", serif;
+  font-weight: 500;
+  font-style: italic;
+}
+
+.seagreen-text {
+    color: #5C8374}
+
+.seagreen-bg {
+    background-color: #5C8374}

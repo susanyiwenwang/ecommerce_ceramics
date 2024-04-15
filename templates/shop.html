@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container my-5">
+  <h1 class="display-4 fw-bold lh-1 text-body-emphasis cormorant-garamond-medium-italic">Ceramics</h1>
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      {% for message in messages %}
+      <p class="flash dark-green-text">{{ message }}</p>
+      {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <div class="album py-5 bg-body-tertiary">
+    <div class="container">
+
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+
+        {% for product in products: %}
+        <div class="col">
+          <div class="card shadow-sm">
+            <img src = "static/assets/{{ product.img_url }}" class="card-img-top" width="100%" height="300" />
+            <div class="card-body">
+              <p class="card-text">{{ product.name }}</p>
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="btn-group">
+                  <a href="{{url_for('add_to_cart', product_id=product.stripe_id) }}"><button type="button" class="btn btn-sm btn-dark dark-green-bg">Add to cart</button></a>
+                  <!-- <button type="button" class="btn btn-sm btn-outline-secondary seagreen-text">Add to cart</button> -->
+                </div>
+                <small class="text-body-secondary">$ {{ "%.2f"|format(product.price / 100) }}</small>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+
+
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
