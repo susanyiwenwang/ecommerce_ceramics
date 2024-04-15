@@ -5,15 +5,16 @@ from forms import LoginForm, RegisterForm
 import stripe
 from flask_login import login_user, UserMixin, LoginManager, current_user, logout_user
 import time
+import os
 
-PUB_KEY = "pk_test_51Oqy87HhJRuuTnPGJie0G6UTo0I274OrCqCzJpRKw8QAHO5mL6c4mNV7sK60Fj4dA2fr8PNThzbZe1c9RYy5B0qP00GsMASYRG"
-stripe.api_key = "sk_test_51Oqy87HhJRuuTnPG9amU2QoI6ni8dPZBXI4A4li5Hyu3Y357ksIc3A3mh4cWcxogb8iEIenvini1tobNXps5YmZU00JHMBObwJ"
+PUB_KEY = os.environ.get("PUB_KEY")
+stripe.api_key = os.environ.get("STRIPE_API")
 
 # https://colorhunt.co/palette/040d12183d3d5c837493b1a6
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = "KaoChienTzu215"
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///ceramics.db'
+app.config['SECRET_KEY'] = os.environ.get("FLASK_KEY")
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DB_URI', 'sqlite:///ceramics.db')
 db = SQLAlchemy()
 db.init_app(app)
 
@@ -76,8 +77,6 @@ new_items = [["Lotus Bowl", "ctk001.jpeg", 5000],
 
 def create_session(list_items):
     line_items = [{"price": item["price_id"], "quantity": 1} for item in list_items]
-    # {"product_id": item.id, "price_id": price_id, "price": price}
-    # turn list_items into the format [{"price": price_id, "quantity": 1}]
 
     new_session = stripe.checkout.Session.create(
             success_url=domain_url + "success",
@@ -101,7 +100,6 @@ def paintings():
 
 @app.route('/shop')
 def shop():
-    # products = stripe.Product.list(active=True)["data"]
     results = db.session.execute(db.select(Product).where(Product.active))
     all_products = results.scalars()
     product_list = [product.to_dict() for product in all_products]
@@ -181,7 +179,6 @@ def logout():
 
 @app.route('/cart')
 def cart():
-
     prelim_list = []
     for item in shopping_cart:
         product = db.session.execute(db.select(Product).where(Product.stripe_id == item)).scalar()
@@ -203,7 +200,7 @@ def checkout_session():
 
     # create checkout session
     s = create_session(checkout_list)
-    print(s)
+    # print(s)
     return redirect(s["url"])
 
 
