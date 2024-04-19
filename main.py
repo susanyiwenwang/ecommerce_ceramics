@@ -1,9 +1,9 @@
 from flask import Flask, render_template, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
-from forms import LoginForm, RegisterForm
+from forms import LoginForm, RegisterForm, BillingForm
 import stripe
-from flask_login import login_user, UserMixin, LoginManager, current_user, logout_user
+from flask_login import login_user, UserMixin, LoginManager, current_user, logout_user, login_required
 import time
 import os
 
@@ -35,6 +35,7 @@ class User(UserMixin, db.Model):
     name = db.Column(db.String(250), nullable=False)
     email = db.Column(db.String(250), unique=True, nullable=False)
     password = db.Column(db.String(250), nullable=False)
+    stripe_id = db.Column(db.String(250))
 
 
 class Product(db.Model):
@@ -93,11 +94,6 @@ def home():
     return render_template('index.html')
 
 
-@app.route('/paintings')
-def paintings():
-    return render_template('paintings.html')
-
-
 @app.route('/shop')
 def shop():
     results = db.session.execute(db.select(Product).where(Product.active))
@@ -153,7 +149,9 @@ def register():
             password=form.password.data,
             method="pbkdf2:sha256",
             salt_length=8)
-        new_user = User(name=name, email=email, password=hashed_password)
+        # create Stripe customer:
+        stripe_customer = stripe.Customer.create(name=name, email=email)
+        new_user = User(name=name, email=email, password=hashed_password, stripe_id=stripe_customer["id"])
         existing_user = db.session.execute(db.select(User).where(User.email == email)).scalar()
         if existing_user:
             flash("That account already exists. Please login instead.")
@@ -162,6 +160,7 @@ def register():
             db.session.add(new_user)
             db.session.commit()
             login_user(new_user)
+
             return redirect(url_for('home'))
     return render_template('register.html', form=form)
 
@@ -187,6 +186,29 @@ def cart():
     product_list = [product.to_dict() for product in prelim_list]
 
     return render_template('checkout.html', cart=product_list)
+
+
+@login_required
+@app.route('/billing', methods=["POST", "GET"])
+def billing():
+    form = BillingForm()
+    prelim_list = []
+    for item in shopping_cart:
+        product = db.session.execute(db.select(Product).where(Product.stripe_id == item)).scalar()
+        prelim_list.append(product)
+
+    product_list = [product.to_dict() for product in prelim_list]
+    total = 0
+    for product in product_list:
+        total += product['price'] / 100
+
+    if form.validate_on_submit():
+        stripe.Customer.modify(current_user.stripe_id, name=form.full_name.data, address={
+                               "line1": form.line_1.data, "line2": form.line_2.data,
+                               "postal_code": form.postal_code.data, "state": form.state.data,
+                               "city": form.city.data, "country": form.country.data})
+        return redirect(url_for('checkout_session'))
+    return render_template('billing.html', cart=product_list, total=total, form=form)
 
 
 @app.route('/checkout-session')

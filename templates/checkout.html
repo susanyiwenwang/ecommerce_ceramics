@@ -12,9 +12,11 @@
     {% endwith %}
 
     <div class="row justify-content-end pb-4">
+       {% if cart|length > 0: %}
         <div class="col-2">
-          <a href="{{ url_for('checkout_session', ch_list=checkout_list) }}"><button type="button" class="btn btn-dark dark-green-bg">Continue to Payment</button></a>
+          <a href="{{ url_for('billing') }}"><button type="button" class="btn btn-dark dark-green-bg">Continue to Purchase</button></a>
         </div>
+      {% endif %}
         <div class="col-2">
           <a href="{{ url_for('shop') }}"><button type="button" class="btn btn-outline-secondary seagreen-text">Return to Shopping</button></a>
         </div>

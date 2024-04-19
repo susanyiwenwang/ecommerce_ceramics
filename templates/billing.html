@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container my-4 px-2">
+<div class="row my-2 g-5">
+      <div class="col-md-5 col-lg-4 order-md-last">
+        <h4 class="d-flex justify-content-between align-items-center mb-3">
+          <span class="seagreen-text">Your cart</span>
+          <span class="badge seagreen-bg rounded-pill">{{ cart|length }}</span>
+        </h4>
+        <ul class="list-group mb-3">
+          {% for product in cart: %}
+          <li class="list-group-item d-flex justify-content-between lh-sm">
+            <div class="py-2">
+              <h6 class="my-0">{{ product.name }}</h6>
+            </div>
+            <span class="text-body-secondary">$ {{ "%.2f"|format(product.price / 100) }}</span>
+          </li>
+          {% endfor %}
+
+          <li class="list-group-item d-flex justify-content-between">
+            <span>Total (USD)</span>
+            <strong>$ {{ "%.2f"|format(total) }}</strong>
+          </li>
+        </ul>
+
+      </div>
+      <div class="col-md-7 col-lg-8 my-2">
+        <h4 class="mb-3">Billing address</h4>
+        <form action="{{ url_for('billing') }}" method="POST" class="needs-validation" novalidate="">
+
+            {{ form.csrf_token }}
+            <div class="form-group mb-3">
+                {{ form.full_name.label }}
+                {{ form.full_name(class_="form-control") }}
+            </div>
+
+            <div class="form-group mb-3">
+                {{ form.line_1.label }}
+                {{ form.line_1(class_="form-control") }}
+            </div>
+
+            <div class="form-group mb-3">
+                {{ form.line_2.label }}
+                {{ form.line_2(class_="form-control") }}
+            </div>
+
+            <div class="form-group mb-3">
+                {{ form.city.label }}
+                {{ form.city(class_="form-control") }}
+            </div>
+
+            <div class="form-group mb-3">
+                {{ form.country.label }}
+                {{ form.country(class_="form-control") }}
+            </div>
+
+            <div class="form-group mb-3 col-md-4">
+                {{ form.state.label }}
+                {{ form.state(class_="form-control") }}
+            </div>
+
+            <div class="form-group mb-3 col-md-3">
+                {{ form.postal_code.label }}
+                {{ form.postal_code(class_="form-control") }}
+            </div>
+
+
+          <hr class="my-4">
+
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="same-address">
+            <label class="form-check-label" for="same-address">Shipping address is the same as my billing address</label>
+          </div>
+
+          <hr class="my-4">
+            <div class="form-group mb-3">
+            {{ form.submit(class_="form-control btn-secondary text-white seagreen-bg btn-lg") }}
+            </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
